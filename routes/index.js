@@ -98,24 +98,69 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/create-doctor", async (req, res) => {
-  const { fullName, email, address, mobno, expertise } = req.body;
+  const { fullName, email, address, mobno, expertise, password } = req.body;
   try {
     const oldUser = await Doctor.findOne({ email });
 
     if (oldUser) {
       return res.status(409).send("User Already Exist. Please Login");
     }
+    encryptedPassword = await bcrypt.hash(password, 10);
+
     const doc = await Doctor.create({
       fullName,
       address,
       email: email.toLowerCase(),
       mobno,
       expertise,
+      encryptedPassword,
     });
 
+    // Create token
+    const token = jwt.sign(
+      { user_id: doctor._id, email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "2h",
+      }
+    );
+    // save user token
+    doc.token = token;
     res.status(200).send(doc);
   } catch (error) {
     console.log(error);
+  }
+});
+
+router.post("/doctorlogin", async (req, res) => {
+  try {
+    // Get user input
+    const { email, password } = req.body;
+
+    // Validate user input
+    if (!(email && password)) {
+      res.status(400).send("All input is required");
+    }
+    // Validate if user exist in our database
+    const doctor = await Doctor.findOne({ email });
+
+    if (doctor && (await bcrypt.compare(password, user.password))) {
+      // Create token
+      const token = jwt.sign(
+        { user_id: doctor._id, email },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "2h",
+        }
+      );
+
+      // save user token
+      doctor.token = token;
+      res.status(200).json(doctor);
+    }
+    res.status(400).send("Invalid Credentials");
+  } catch (err) {
+    console.log(err);
   }
 });
 
