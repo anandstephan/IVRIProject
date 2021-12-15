@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema.Types;
 
 const callSchema = new mongoose.Schema({
   name: {
@@ -41,6 +42,10 @@ const callSchema = new mongoose.Schema({
   },
   status: {
     type: String,
+  },
+  userModel: {
+    type: ObjectId,
+    ref: "user",
   },
 });
 

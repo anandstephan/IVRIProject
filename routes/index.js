@@ -7,6 +7,7 @@ const User = require("../models/UserModel");
 const Doctor = require("../models/DoctorModel");
 const callStatus = require("../models/callStatus");
 const Specialization = require("../models/specializationCategory");
+const jwtrequire = require("../middlewares/jwt");
 
 router.post("/register", async (req, res) => {
   try {
@@ -175,7 +176,7 @@ router.get("/doctor", auth, async (req, res) => {
 });
 
 //Add Call Stataus
-router.post("/addCall", async (req, res) => {
+router.post("/addCall", jwtrequire, async (req, res) => {
   try {
     //req.body is equal model of callStatus
     const addCall = await callStatus.create({ ...req.body });
@@ -193,6 +194,28 @@ router.get("/getPendingCall", async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+});
+
+//Set Pending Call
+router.post("/setPendingCall", async (req, res) => {
+  //req.body.id is equal callStatus id
+  const pendingcall = await CallStatus.findOneAndUpdate(
+    { _id: req.body.id },
+    { $set: { status: "pending" } },
+    { new: true }
+  );
+  res.status(200).json(pendingcall);
+});
+
+//Set Completed Call
+router.post("/setCompletedCall", async (req, res) => {
+  //req.body.id is equal callStatus id
+  const completedcall = await CallStatus.findOneAndUpdate(
+    { _id: req.body.id },
+    { $set: { status: "compeleted" } },
+    { new: true }
+  );
+  res.status(200).json(completedcall);
 });
 
 //Get Compeleted Call Status
