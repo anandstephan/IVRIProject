@@ -189,7 +189,11 @@ router.post("/addCall", jwtrequire, async (req, res) => {
 //Get Pending Call Status
 router.get("/getPendingCall", async (req, res) => {
   try {
-    const allcallitem = await callStatus.find({ status: "pending" });
+    const userId = req.body.userId;
+    const allcallitem = await callStatus.find({
+      userModel: userId,
+      status: "pending",
+    });
     res.status(200).send(allcallitem);
   } catch (error) {
     console.log(error);
@@ -221,7 +225,11 @@ router.post("/setCompletedCall", async (req, res) => {
 //Get Compeleted Call Status
 router.get("/getCompletedCall", async (req, res) => {
   try {
-    const allcallitem = await callStatus.find({ status: "completed" });
+    const userId = req.body.userId;
+    const allcallitem = await callStatus.find({
+      userModel: userId,
+      status: "completed",
+    });
     res.status(200).send(allcallitem);
   } catch (error) {
     console.log(error);
